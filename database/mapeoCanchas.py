@@ -11,8 +11,6 @@ from datetime import date, datetime
 
 # --- Configuración de la Base de Datos ---
 
-# Se prioriza una variable de entorno (debería ser una URL completa de SQLAlchemy).
-# Si no está configurada, se construye una URL para un archivo sqlite local.
 env_url = os.getenv("DATABASE_URL")
 if env_url:
     DATABASE_URL = env_url
@@ -43,6 +41,7 @@ def _set_sqlite_pragma(dbapi_connection, connection_record):
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+
 class TipoDocumento(Base):
     __tablename__ = "TipoDocumento"
     idTipoDoc = Column(Integer, primary_key=True, autoincrement=True)
@@ -52,6 +51,42 @@ class TipoDocumento(Base):
 
     def __repr__(self):
         return f"<TipoDocumento(idTipoDoc={self.idTipoDoc}, nombre='{self.nombre}')>"
+
+
+class EstadoCancha(Base):
+    __tablename__ = "EstadoCancha"
+    idEstado = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(50), nullable=False, unique=True)
+
+    def __repr__(self):
+        return f"<EstadoCancha(idEstado={self.idEstado}, nombre='{self.nombre}')>"
+
+
+class EstadoReserva(Base):
+    __tablename__ = "EstadoReserva"
+    idEstado = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(50), nullable=False, unique=True)
+
+    def __repr__(self):
+        return f"<EstadoReserva(idEstado={self.idEstado}, nombre='{self.nombre}')>"
+
+
+class EstadoTorneo(Base):
+    __tablename__ = "EstadoTorneo"
+    idEstado = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(50), nullable=False, unique=True)
+
+    def __repr__(self):
+        return f"<EstadoTorneo(idEstado={self.idEstado}, nombre='{self.nombre}')>"
+
+
+class EstadoPago(Base):
+    __tablename__ = "EstadoPago"
+    idEstado = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(50), nullable=False, unique=True)
+
+    def __repr__(self):
+        return f"<EstadoPago(idEstado={self.idEstado}, nombre='{self.nombre}')>"
 
 
 class Cliente(Base):
@@ -84,20 +119,23 @@ class Deporte(Base):
     def __repr__(self):
         return f"<Deporte(idDeporte={self.idDeporte}, nombre='{self.nombre}')>"
 
+
 class Cancha(Base):
     __tablename__ = "Cancha"
     idCancha = Column(Integer, primary_key=True, autoincrement=True)
     nombre = Column(String(100), nullable=False)
     deporte = Column(Integer, ForeignKey("Deporte.idDeporte"), nullable=False)
     precioHora = Column(Float, nullable=False)
-    estado = Column(String(20), nullable=False)  # 'disponible', 'mantenimiento' (no se si habria que hacer una tabla para el estado de cada cosa)
+    estado = Column(Integer, ForeignKey("EstadoCancha.idEstado"), nullable=False)
 
     def __repr__(self):
         return f"<Cancha(idCancha={self.idCancha}, nombre='{self.nombre}', deporte='{self.deporte}', precioHora={self.precioHora}, estado='{self.estado}')>"
     # relaciones ORM
     servicios = relationship("CanchaxServicio", back_populates="cancha", cascade="all, delete-orphan")
     torneos = relationship("TorneoxCancha", back_populates="cancha")
-    
+    estados = relationship("EstadoCancha", back_populates="cancha")
+
+
 class Horario(Base):
     __tablename__ = "Horario"
     idHorario = Column(Integer, primary_key=True, autoincrement=True)
@@ -110,6 +148,7 @@ class Horario(Base):
     torneos = relationship("TorneoxCancha", back_populates="horario")
     detalles = relationship("DetalleReserva", back_populates="horario")
     
+
 class Servicio(Base):
     __tablename__ = "Servicio"
     idServicio = Column(Integer, primary_key=True, autoincrement=True)
@@ -120,6 +159,7 @@ class Servicio(Base):
     # relaciones ORM
     canchas = relationship("CanchaxServicio", back_populates="servicio", cascade="all, delete-orphan")
     
+
 class CanchaxServicio(Base):
     __tablename__ = "CanchaxServicio"
     idCancha = Column(Integer, ForeignKey("Cancha.idCancha"), primary_key=True)
@@ -128,6 +168,7 @@ class CanchaxServicio(Base):
 
     cancha = relationship("Cancha", back_populates="servicios")
     servicio = relationship("Servicio", back_populates="canchas")
+
 
 class DetalleReserva(Base):
     __tablename__ = "DetalleReserva"
@@ -150,12 +191,13 @@ class DetalleReserva(Base):
     horario = relationship("Horario", back_populates="detalles")
     reserva = relationship("Reserva", back_populates="detalles")
 
+
 class Reserva(Base):
     __tablename__ = "Reserva"
     idReserva = Column(Integer, primary_key=True, autoincrement=True)
     idCliente = Column(Integer, ForeignKey("Cliente.idCliente"), nullable=False)
     fechaReservada = Column(Date, nullable=False)
-    estado = Column(String(20), nullable=False)  # 'confirmada', 'cancelada', etc.
+    estado = Column(Integer, ForeignKey("EstadoReserva.idEstado"), nullable=False)
     monto = Column(Float, nullable=False)
     fechaCreacion = Column(DateTime, nullable=False)
 
@@ -164,6 +206,8 @@ class Reserva(Base):
     # Relaciones ORM
     detalles = relationship("DetalleReserva", back_populates="reserva", cascade="all, delete-orphan")
     cliente = relationship("Cliente", back_populates="reservas")
+    estados = relationship("EstadoReserva", back_populates="reserva")
+
 
 class MetodoPago(Base):
     __tablename__ = "MetodoPago"
@@ -173,6 +217,7 @@ class MetodoPago(Base):
     def __repr__(self):
         return f"<MetodoPago(idMetodoPago={self.idMetodoPago}, descripcion='{self.descripcion}')>"
 
+
 class Pago(Base):
     __tablename__ = "Pago"
     idPago = Column(Integer, primary_key=True, autoincrement=True)
@@ -180,10 +225,13 @@ class Pago(Base):
     metodoPago = Column(Integer, ForeignKey("MetodoPago.idMetodoPago"), nullable=False)
     monto = Column(Float, nullable=False)
     fechaPago = Column(DateTime, nullable=False)
-    estado = Column(String(20), nullable=False)  # 'completado', 'pendiente', etc.
+    estado = Column(Integer, ForeignKey("EstadoPago.idEstado"), nullable=False)
 
     def __repr__(self):
         return f"<Pago(idPago={self.idPago}, idReserva={self.idReserva}, monto={self.monto}, fechaPago={self.fechaPago}, estado='{self.estado}')>"
+    estados = relationship("EstadoPago", back_populates="pago")
+    reserva = relationship("Reserva", back_populates="pago")
+
 
 class Equipo(Base):
     __tablename__ = "Equipo"
@@ -202,12 +250,26 @@ class Torneo(Base):
     deporte = Column(Integer, ForeignKey("Deporte.idDeporte"), nullable=False)
     fechaInicio = Column(Date, nullable=False)
     fechaFin = Column(Date, nullable=False)
-    estado = Column(String(20), nullable=False)  # 'activo', 'finalizado', etc.
+    estado = Column(Integer, ForeignKey("EstadoTorneo.idEstado"), nullable=False)
     
     def __repr__(self):
         return f"<Torneo(idTorneo={self.idTorneo}, nombre='{self.nombre}', deporte='{self.deporte}', fechaInicio={self.fechaInicio}, fechaFin={self.fechaFin}, estado='{self.estado}')>"
     equipos = relationship("EquipoxCliente", back_populates="torneo")
     cancha = relationship("TorneoxCancha", back_populates="torneo")
+    estados = relationship("EstadoTorneo", back_populates="torneo")
+
+
+class Partido(Base):
+    __tablename__ = "Partido"
+    idPartido = Column(Integer, primary_key=True, autoincrement=True)
+    idTorneo = Column(Integer, ForeignKey("Torneo.idTorneo"), nullable=False)
+    idCancha = Column(Integer, ForeignKey("Cancha.idCancha"), nullable=False)
+    fecha = Column(Date, nullable=False)
+    idHorario = Column(Integer, ForeignKey("Horario.idHorario"), nullable=False)
+    idEquipoLocal = Column(Integer, ForeignKey("Equipo.idEquipo"), nullable=False)
+    idEquipoVisitante = Column(Integer, ForeignKey("Equipo.idEquipo"), nullable=False)
+    resultado = Column(String(20))  # '2-1', '0-0', etc.
+    
 
 class EquipoxCliente(Base):
     __tablename__ = "EquipoxCliente"
@@ -222,20 +284,27 @@ class EquipoxCliente(Base):
     def __repr__(self):
         return f"<EquipoxCliente(idEquipo={self.idEquipo}, idCliente={self.idCliente}, idTorneo={self.idTorneo})>"
 
-class TorneoxCancha(Base):
-    __tablename__ = "TorneoxCancha"
-    idTorneo = Column(Integer, ForeignKey("Torneo.idTorneo"), primary_key=True)
-    idCancha = Column(Integer, ForeignKey("Cancha.idCancha"), primary_key=True)
-    idHorario = Column(Integer, ForeignKey("Horario.idHorario"), nullable=False)
-    fecha = Column(Date, nullable=False)
 
-    torneo = relationship("Torneo", back_populates="cancha")
-    cancha = relationship("Cancha", back_populates="torneos")
-    horario = relationship("Horario", back_populates="torneos")
+class Permiso(Base):
+    __tablename__ = "Permiso"
+    idPermiso = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(100), nullable=False, unique=True)  # e.g. 'admin', 'staff', 'user'
 
     def __repr__(self):
-        return f"<TorneoxCancha(idTorneo={self.idTorneo}, idCancha={self.idCancha}, idHorario={self.idHorario}, fecha={self.fecha})>"
-    
+        return f"<Permiso(idPermiso={self.idPermiso}, nombre='{self.nombre}')>"
+
+
+class Usuario(Base):
+    __tablename__ = "Usuario"
+    idUsuario = Column(Integer, primary_key=True, autoincrement=True)
+    usuario = Column(String(100), nullable=False, unique=True)
+    contrasena = Column(String(200), nullable=False)  # almacenar hash en producción
+    permiso = Column(Integer, ForeignKey("Permiso.idPermiso"))
+
+    def __repr__(self):
+        return f"<Usuario(idUsuario={self.idUsuario}, usuario='{self.usuario}', permisos='{self.permisos}')>"
+    permisos = relationship("Permiso", secondary="usuario_permiso", back_populates="usuarios")
+
 
 
 def seed_minimal_demo():
@@ -331,3 +400,10 @@ if __name__ == "__main__":
         print("Tablas creadas exitosamente.")
         # Ejecutar seed demo opcional
         seed_minimal_demo()
+    # Si el resto de las tablas existen pero falta la tabla Usuario, crearla explícitamente
+    # (esto permite añadir la tabla a una base existente sin recrear todo)
+    missing_tables = [t for t in ['Usuario'] if t not in existing_tables]
+    if missing_tables:
+        print(f"Tablas faltantes detectadas: {missing_tables}. Creando sólo esas tablas...")
+        Base.metadata.create_all(bind=engine, tables=[Usuario.__table__])
+        print("Tabla Usuario creada correctamente.")
