@@ -162,8 +162,9 @@ class Servicio(Base):
 
 class CanchaxServicio(Base):
     __tablename__ = "CanchaxServicio"
-    idCancha = Column(Integer, ForeignKey("Cancha.idCancha"), primary_key=True)
-    idServicio = Column(Integer, ForeignKey("Servicio.idServicio"), primary_key=True)
+    idCxS= Column(Integer, primary_key=True, autoincrement=True)
+    idCancha = Column(Integer, ForeignKey("Cancha.idCancha"))
+    idServicio = Column(Integer, ForeignKey("Servicio.idServicio"))
     precioAdicional = Column(Float, nullable=False)
 
     cancha = relationship("Cancha", back_populates="servicios")
@@ -173,20 +174,14 @@ class CanchaxServicio(Base):
 class DetalleReserva(Base):
     __tablename__ = "DetalleReserva"
     idDetalle = Column(Integer, primary_key=True, autoincrement=True)
-    idCancha = Column(Integer, nullable=False)
-    idServicio = Column(Integer, nullable=False)
+    idCxS = Column(Integer, ForeignKey("CanchaxServicio.idCxS"), nullable=False)
     idHorario = Column(Integer, ForeignKey("Horario.idHorario"))
     idReserva = Column(Integer, ForeignKey("Reserva.idReserva"), nullable=False)
    
-    __table_args__ = (
-        ForeignKeyConstraint(
-            ['idCancha', 'idServicio'],
-            ['CanchaxServicio.idCancha', 'CanchaxServicio.idServicio']
-        ),
-    )
+
 
     def __repr__(self):
-        return f"<DetalleReserva(idDetalle={self.idDetalle}, idCancha={self.idCancha}, idServicio={self.idServicio}, idHorario={self.idHorario})>"
+        return f"<DetalleReserva(idDetalle={self.idDetalle}, idCxS={self.idCxS}, idHorario={self.idHorario}, idReserva={self.idReserva})>"
     # Relaciones ORM auxiliares
     horario = relationship("Horario", back_populates="detalles")
     reserva = relationship("Reserva", back_populates="detalles")
@@ -273,8 +268,9 @@ class Partido(Base):
 
 class EquipoxCliente(Base):
     __tablename__ = "EquipoxCliente"
-    idEquipo = Column(Integer, ForeignKey("Equipo.idEquipo"), primary_key=True)
-    idCliente = Column(Integer, ForeignKey("Cliente.idCliente"), primary_key=True)
+    idExC = Column(Integer, primary_key=True, autoincrement=True)
+    idEquipo = Column(Integer, ForeignKey("Equipo.idEquipo"), nullable=False)
+    idCliente = Column(Integer, ForeignKey("Cliente.idCliente"), nullable=False)
     idTorneo = Column(Integer, ForeignKey("Torneo.idTorneo"), nullable=False)
 
     equipo = relationship("Equipo", back_populates="clientes")

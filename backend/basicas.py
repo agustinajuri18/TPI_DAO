@@ -41,14 +41,32 @@ def _to_dict(obj) -> Dict[str, Any]:
 	return {col.name: getattr(obj, col.name) for col in obj.__table__.columns}
 
 
+#---------------- Tipo Documento ----------------
+
+def get_tipo_documento(idTipoDoc: int) -> Dict[str, Any]:
+	session = SessionLocal()
+	try:
+		return _to_dict(session.get(TipoDocumento, idTipoDoc))
+	finally:
+		session.close()
+
+def list_tipos_documento() -> List[Dict[str, Any]]:
+	session = SessionLocal()
+	try:
+		rows = session.query(TipoDocumento).all()
+		return [_to_dict(r) for r in rows]
+	finally:
+		session.close()
+
+
 # ---------------- Clientes ----------------
 
 def create_cliente(idTipoDoc: int, numeroDoc: int, nombre: str = None,
-				   apellido: str = None, mail: str = None, telefono: str = None) -> Dict[str, Any]:
+				   apellido: str = None, mail: str = None, telefono: str = None, fechaRegistro = None) -> Dict[str, Any]:
 	session = SessionLocal()
 	try:
 		cliente = Cliente(idTipoDoc=idTipoDoc, numeroDoc=numeroDoc, nombre=nombre,
-						  apellido=apellido, mail=mail, telefono=telefono)
+						  apellido=apellido, mail=mail, telefono=telefono, fechaRegistro=fechaRegistro)
 		session.add(cliente)
 		session.commit()  # aquí se guarda en la DB
 		session.refresh(cliente)  # actualiza el objeto con la PK autogenerada
@@ -65,6 +83,18 @@ def get_cliente(idCliente: int) -> Dict[str, Any]:
 	session = SessionLocal()
 	try:
 		obj = session.get(Cliente, idCliente)
+		return _to_dict(obj)
+	finally:
+		session.close()
+
+def get_cliente_by_doc(idTipoDoc: int, numeroDoc: int) -> Dict[str, Any]:
+	"""Consulta un cliente por su tipo y número de documento. Devuelve {} si no existe."""
+	session = SessionLocal()
+	try:
+		obj = session.query(Cliente).filter(
+			Cliente.idTipoDoc == idTipoDoc,
+			Cliente.numeroDoc == numeroDoc
+		).first()
 		return _to_dict(obj)
 	finally:
 		session.close()
@@ -348,6 +378,13 @@ def list_reservas_por_cancha(idCancha: int, fechaDesde=None, fechaHasta=None) ->
 	finally:
 		session.close()
 
+
+def get_cancha_by_nombre_y_deporte(nombre: str, deporte: str) -> Dict[str, Any]:
+	session = SessionLocal()
+	try:
+		return _to_dict(session.query(Cancha).filter_by(nombre=nombre, deporte=deporte).first())
+	finally:
+		session.close()
 
 
 # ---------------- Servicios ----------------
@@ -836,6 +873,14 @@ def reservas_por_cancha() -> List[Dict[str, Any]]:
 		for row in q.all():
 			results.append({'idCancha': row.idCancha, 'nombre': row.nombre, 'conteo_reservas': int(row.conteo)})
 		return results
+	finally:
+		session.close()
+
+
+def get_reservas_por_cliente(idCliente: int) -> List[Dict[str, Any]]:
+	session = SessionLocal()
+	try:
+		return [_to_dict(r) for r in session.query(Reserva).filter(Reserva.idCliente == idCliente).all()]
 	finally:
 		session.close()
 
