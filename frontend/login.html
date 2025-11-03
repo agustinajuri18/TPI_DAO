@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Iniciar sesión - GoField</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="login-page">
+    <header class="site-header">
+      <div class="container header-inner">
+        <img src="assets/logo.png" alt="GoField logo" class="logo" onerror="this.style.display='none';document.querySelector('.site-header').classList.add('no-logo')"/>
+        <nav class="nav">
+          <a href="index.html" class="nav-link">Canchas</a>
+          <a href="#" class="nav-link">Contactanos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="login-bg">
+        <img src="assets/hero.jpg" alt="fondo" class="login-bg-img" onerror="this.style.display='none';document.body.classList.add('hero-fallback')">
+        <div class="login-overlay"></div>
+
+        <div class="login-hero-content container">
+          <h1 class="login-title">BIENVENIDO!</h1>
+
+          <form id="loginPageForm" class="login-form">
+            <input class="login-input" type="text" name="usuario" placeholder="USUARIO" required />
+            <input class="login-input" type="password" name="contrasena" placeholder="CONTRASEÑA" required />
+
+            <div class="login-actions">
+              <button type="submit" class="btn btn-outline">INICIAR SESIÓN</button>
+              <a href="index.html" class="btn btn-primary">REGISTRARME</a>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      document.getElementById('loginPageForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        const form = new FormData(e.target);
+        // Placeholder: mostrar datos en alerta y no hacer POST real
+        alert('Login (placeholder) - usuario: ' + form.get('usuario'));
+        // Aquí podrías hacer fetch POST a /api/login cuando exista el endpoint
+      })
+    </script>
+  </body>
+</html>
