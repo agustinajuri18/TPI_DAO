@@ -7,18 +7,16 @@
   --max-width: 1100px;
 }
 *{box-sizing:border-box}
-/* Layout that keeps footer at bottom */
-body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; color:#222; min-height:100vh; display:flex; flex-direction:column}
+body{margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;color:#222}
 .container{max-width:var(--max-width);margin:0 auto;padding:0 16px}
-main{flex:1;display:flex;flex-direction:column;min-height:0}
 
 .site-header{background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.0));position:fixed;left:0;right:0;top:0;z-index:30}
 .header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 8px}
-.logo{height:56px;margin-left:0}
+.logo{height:56px}
 .logo-small{height:32px}
 .nav-link{color:var(--gris);text-decoration:none;margin-left:18px;font-size:14px}
 
-.hero{position:relative;display:flex;align-items:center;justify-content:center;flex:1;min-height:0}
+.hero{position:relative;display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 120px)}
 .hero-img{position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;object-fit:cover}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(25,53,12,0.5), rgba(25,53,12,0.65))}
 .hero-content{position:relative;z-index:10;text-align:center;color:white;padding:60px 16px}
@@ -28,48 +26,12 @@ main{flex:1;display:flex;flex-direction:column;min-height:0}
 .btn-primary{background:var(--azul-claro);color:#fff}
 .btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.25);color:#fff}
 
-.section{padding:48px 0}
-
-/* Fallbacks when images are missing */
-.hero.hero-fallback{background:linear-gradient(180deg, rgba(25,53,12,0.7), rgba(25,53,12,0.8));}
-.site-header.no-logo .logo{display:none}
-
 .site-footer{background:var(--azul-oscuro);color:#fff;padding:18px 0;margin-top:0}
 .footer-inner{display:flex;justify-content:space-between;align-items:center}
 .brand{display:flex;align-items:center;gap:8px}
 .footer-links a{color:rgba(255,255,255,0.85);text-decoration:none;margin-left:12px}
 
-/* Modal */
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:60}
-.modal[aria-hidden="false"]{display:flex}
-.modal-dialog{background:#fff;border-radius:8px;padding:20px;max-width:420px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,0.25)}
-.modal-close{position:absolute;right:12px;top:12px;background:transparent;border:0;font-size:20px}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
-label{display:block;margin-top:10px;font-size:14px}
-input[type="text"],input[type="password"],input[type="date"],select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:6px}
-
-@media(max-width:600px){
-  .title{font-size:36px}
-  .logo{height:48px}
-  .hero{height:60vh}
-}
-
-/* Login page styles */
-.login-page{min-height:100vh;display:flex}
-.login-bg{position:relative;flex:1;display:flex;align-items:center;justify-content:center}
-.login-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.login-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(25,53,12,0.6), rgba(25,53,12,0.6))}
-.login-card{position:relative;z-index:10;background:rgba(255,255,255,0.95);padding:28px;border-radius:10px;max-width:420px;width:90%;box-shadow:0 12px 30px rgba(0,0,0,0.25)}
-.login-card h2{margin:0 0 12px}
-.login-card label{display:block;margin-bottom:10px}
-.login-card input{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px}
-.login-card .btn{margin-right:8px}
-
-@media(max-width:600px){
-  .login-card{padding:20px}
-}
-
-/* New login hero layout */
+/* Login styles */
 .login-bg{position:relative;min-height:calc(100vh - 0px);display:flex;align-items:center}
 .login-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .login-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(25,53,12,0.45), rgba(25,53,12,0.45))}
